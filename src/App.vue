@@ -1,5 +1,5 @@
 <template>
-  <div class="app-container">
+  <div>
     <h1 class="app-title">Coin Market</h1>
 
     <header class="header-container">
@@ -16,12 +16,12 @@
           :disabled="isfetching"
           @click="getCryptos"
         >
-          {{ isfetching ? "Refrescando..." : "Refrescar" }}
+          {{ isfetching ? "Actualizando..." : "Actualizar" }}
         </button>
       </div>
     </header>
 
-    <div v-if="cryptos">
+    <div v-if="cryptosFilters">
       <main>
         <table id="cryptos">
           <thead>
@@ -36,7 +36,7 @@
 
           <tbody>
             <tr
-              v-for="(coin, index) in cryptos"
+              v-for="(coin, index) in cryptosFilters"
               :key="coin.id"
               @click="selectCrypto(coin)"
             >
@@ -80,10 +80,10 @@ import getCryptosApi from "./api";
 
 export default {
   name: "App",
-  components: {},
   data() {
     return {
       cryptos: [],
+      cryptosFilters: [],
       isfetching: true,
       currentCrypto: null,
       titles: ["#", "Coin", "Price", "Price change", "24h Volume"],
@@ -100,19 +100,19 @@ export default {
   methods: {
     searchCoin() {
       if (this.textSearch?.length > 0) {
-        this.cryptos = this.cryptos.filter(
+        this.cryptosFilters = this.cryptos.filter(
           (c) =>
             c.name.toLowerCase().includes(this.textSearch.toLowerCase()) ||
             c.symbol.toLowerCase().includes(this.textSearch.toLowerCase())
         );
       } else {
-        this.getCryptos();
+        this.cryptosFilters = this.cryptos;
       }
     },
     async getCryptos() {
       this.isfetching = true;
       this.cryptos = await getCryptosApi();
-
+      this.searchCoin();
       setTimeout(() => {
         this.isfetching = false;
       }, 1000);
@@ -133,11 +133,6 @@ export default {
 };
 </script>
 <style scoped>
-.app-container {
-  margin: 0;
-  padding: 0;
-}
-
 .app-title {
   text-align: center;
   margin: 30px;
@@ -169,15 +164,21 @@ main {
 .search-input {
   background-color: rgba(243, 241, 241, 0.795);
   padding: 10px 10px 10px 15px;
-  width: 75%;
+  width: 50%;
+  min-width: 275px;
   border-radius: 20px;
   font-size: 20px;
   font-weight: 500;
   border: 1px solid rgba(243, 241, 241, 0.795);
+  margin-right: 10px;
 }
 
 .search-input:hover {
   border: 1px solid rgb(164, 164, 165);
+}
+
+.search-input:focus {
+  outline: none;
 }
 
 .refresh-button {
